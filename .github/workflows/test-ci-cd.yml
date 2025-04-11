@@ -35,7 +35,7 @@ jobs:
       - name: Run All Tests
         run: |
           # Run each test file's main function and append output to test_output.txt
-          mvn exec:java -Dexec.mainClass="test_cases.AddTransactionTest" >> test_output.txt 2>&1
+          mvn exec:java -Dexec.mainClass="test_cases.AddTransactionTest.kt" >> test_output.txt 2>&1
           
           # Display the output for debugging
           cat test_output.txt
