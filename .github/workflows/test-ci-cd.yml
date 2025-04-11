@@ -1,0 +1,49 @@
+name: Kotlin CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean compile
+
+      - name: Run All Tests
+        run: |
+          # Run each test file's main function and append output to test_output.txt
+          mvn exec:java -Dexec.mainClass="test_cases.AddTransactionTest" >> test_output.txt 2>&1
+          
+          # Display the output for debugging
+          cat test_output.txt
+          
+          # Check for any "Failed" messages
+          if grep -q "Failed" test_output.txt; then
+            echo "One or more tests failed!"
+            exit 1
+          else
+            echo "All tests passed!"
+          fi
